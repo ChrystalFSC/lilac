@@ -17,6 +17,15 @@ Lilac.i18n = (() => {
     "storage.synced": "Synced to your account",
     "logToday": "Log today",
 
+    // Appearance
+    "theme.title": "Appearance",
+    "theme.colour": "Colour theme",
+    "theme.lilac": "Lilac", "theme.rose": "Rose", "theme.peach": "Peach", "theme.mint": "Mint", "theme.ocean": "Ocean",
+    "theme.mode": "Light or dark",
+    "theme.auto": "Match device", "theme.light": "Light", "theme.dark": "Dark",
+    "theme.synced": "Saved to your account, so your other devices switch too.",
+    "theme.local": "Saved on this device. Sign in to sync it to your other devices.",
+
     // Home: greeting, check-in, stats, reminder
     "greet.morning": (v) => (v.name ? `Good morning, ${v.name}` : "Good morning"),
     "greet.afternoon": (v) => (v.name ? `Good afternoon, ${v.name}` : "Good afternoon"),
@@ -204,6 +213,14 @@ Lilac.i18n = (() => {
     "storage.local": "仅保存在此设备上",
     "storage.synced": "已同步到你的账户",
     "logToday": "记录今天",
+
+    "theme.title": "外观",
+    "theme.colour": "颜色主题",
+    "theme.lilac": "丁香紫", "theme.rose": "玫瑰", "theme.peach": "蜜桃", "theme.mint": "薄荷", "theme.ocean": "海洋",
+    "theme.mode": "浅色或深色",
+    "theme.auto": "跟随设备", "theme.light": "浅色", "theme.dark": "深色",
+    "theme.synced": "已保存到你的账户，其他设备也会一起切换。",
+    "theme.local": "已保存在此设备上。登录后可同步到你的其他设备。",
 
     "greet.morning": (v) => (v.name ? `早上好，${v.name}` : "早上好"),
     "greet.afternoon": (v) => (v.name ? `下午好，${v.name}` : "下午好"),

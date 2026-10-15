@@ -107,6 +107,7 @@ Lilac.sync = (() => {
       if (user && document.visibilityState === "visible" && !running) schedule(0);
     }, POLL_MS);
     store.onChange(() => schedule(1500));
+    Lilac.theme?.onChange((_prefs, fromSync) => { if (!fromSync) schedule(800); });
   }
 
   // ---------- Sync ----------
@@ -123,6 +124,30 @@ Lilac.sync = (() => {
       if (error) throw error;
       rows.push(...data);
       if (data.length < 1000) return rows;
+    }
+  }
+
+  // Appearance (theme + light/dark) follows the account: the newer choice wins.
+  // If the settings table hasn't been created yet, skip quietly so entries still sync.
+  async function syncPrefs() {
+    if (!Lilac.theme) return;
+    const { data, error } = await client.from("lilac_settings").select("prefs, stamp").maybeSingle();
+    if (error) {
+      if (errorKeyFor(error) === "err.tables" || error.code === "42501") return;
+      throw error;
+    }
+    const local = Lilac.theme.get();
+    const remoteStamp = Number(data?.stamp) || 0;
+    if (data && remoteStamp > local.stamp) {
+      Lilac.theme.set({ ...data.prefs, stamp: remoteStamp }, true);
+    } else if (local.stamp > remoteStamp) {
+      const { error: upErr } = await client.from("lilac_settings").upsert({
+        user_id: user.id,
+        prefs: { theme: local.theme, mode: local.mode },
+        stamp: local.stamp,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      if (upErr && errorKeyFor(upErr) !== "err.tables") throw upErr;
     }
   }
 
@@ -159,6 +184,7 @@ Lilac.sync = (() => {
           const { error } = await client.from(TABLE).upsert(pushes.slice(i, i + 500), { onConflict: "user_id,day" });
           if (error) throw error;
         }
+        await syncPrefs();
         lastSynced = new Date();
         set("synced");
       } catch (e) {

@@ -57,10 +57,10 @@
     const defs = svg("defs");
     defs.innerHTML = `
       <linearGradient id="cycleGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#9A7CE6"/><stop offset="0.55" stop-color="#C07ACB"/><stop offset="1" stop-color="#EE8FB2"/>
+        <stop offset="0" style="stop-color:var(--cycle-a)"/><stop offset="0.55" style="stop-color:var(--cycle-b)"/><stop offset="1" style="stop-color:var(--cycle-c)"/>
       </linearGradient>
       <linearGradient id="periodGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E46E9A"/><stop offset="1" stop-color="#B23A68"/>
+        <stop offset="0" style="stop-color:var(--period-a)"/><stop offset="1" style="stop-color:var(--period-b)"/>
       </linearGradient>
       <radialGradient id="faceGrad" cx="0.5" cy="0.35" r="0.75">
         <stop offset="0" style="stop-color:var(--card-solid)"/><stop offset="1" style="stop-color:var(--lilac-soft)"/>

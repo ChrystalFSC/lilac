@@ -36,6 +36,7 @@ English · 简体中文 · Works on phone and desktop · No build step
 | **Calendar reminder** | Adds the next expected period to your phone's calendar, with an alert the day before. |
 | **Cycle history** | Each cycle's length against the 21–35 day range the NHS describes as regular. |
 | **Two languages** | English and Simplified Chinese, switchable from the header. |
+| **Five colour themes** | Lilac, Rose, Peach, Mint and Ocean, each in light and dark, from the palette button. Your choice syncs to your other devices. |
 | **Private by default** | Data stays in your browser. Optional sync uses your own Supabase project. |
 
 ## Screenshots
@@ -97,6 +98,37 @@ flowchart TD
 ```
 
 This is the calendar method. It shows a range because real cycles vary: in a study of 612,613 cycles only 13% were exactly 28 days long (Bull et al., 2019). It is not a fertility or contraception tool.
+
+### Colour themes
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/theme-lilac.jpg" alt="Lilac theme, light"></td>
+    <td><img src="docs/screenshots/theme-rose.jpg" alt="Rose theme, light"></td>
+    <td><img src="docs/screenshots/theme-peach.jpg" alt="Peach theme, light"></td>
+    <td><img src="docs/screenshots/theme-mint.jpg" alt="Mint theme, dark"></td>
+    <td><img src="docs/screenshots/theme-ocean.jpg" alt="Ocean theme, light"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Lilac</sub></td>
+    <td align="center"><sub>Rose</sub></td>
+    <td align="center"><sub>Peach</sub></td>
+    <td align="center"><sub>Mint (dark)</sub></td>
+    <td align="center"><sub>Ocean</sub></td>
+  </tr>
+</table>
+
+Pick one from the palette button in the header. Every theme has a light and a dark version, and **Match device** follows your phone or computer's setting. Period days stay rose in every theme, so their meaning never changes.
+
+| Theme | Accent (light) | Accent (dark) |
+|---|---|---|
+| Lilac | `#6B4BBE` | `#C2AEF5` |
+| Rose | `#B8336A` | `#F4A3BF` |
+| Peach | `#A84B22` | `#F6B894` |
+| Mint | `#1F7A5C` | `#86DDB9` |
+| Ocean | `#2F5FB3` | `#9EC0F5` |
+
+All themes keep body text and buttons at a contrast of 4.5:1 or better. Colours live as CSS variables at the top of [`public/css/styles.css`](public/css/styles.css), one block per theme for light and one for dark.
 
 ### What the dial shows
 
@@ -202,7 +234,7 @@ flowchart LR
 Optional. Without it, data stays in the browser you use.
 
 1. Create a free project at <https://supabase.com> (Singapore region for Malaysia).
-2. **SQL Editor → New query**: paste [`supabase/setup.sql`](supabase/setup.sql) and **Run**.
+2. **SQL Editor → New query**: paste [`supabase/setup.sql`](supabase/setup.sql) and **Run**. It creates two tables, `lilac_entries` for your days and `lilac_settings` for your colour theme, and is safe to run again.
 3. **Authentication → Sign In / Providers → Email**: turn **off "Confirm email"**.
 4. **Authentication → URL Configuration**: set the **Site URL** to your live address.
 5. **Project Settings → API keys**: copy the **Project URL** and **anon / publishable** key into [`public/js/config.js`](public/js/config.js). Never use the `service_role` or secret key.
@@ -230,6 +262,8 @@ lilac/
 │   ├── _headers            security headers
 │   ├── css/styles.css      theme, layout, dark mode
 │   └── js/
+│       ├── theme.js        colour theme + light/dark, applied before first paint
+│       ├── theme-ui.js     Appearance picker
 │       ├── config.js       Supabase URL and public key
 │       ├── i18n.js         all text, English + 简体中文
 │       ├── dates.js        date maths and formatting
@@ -257,4 +291,6 @@ flowchart TD
     guidance --> ui
     sync --> ui
     sync --> syncui["sync-ui.js"]
+    theme["theme.js"] --> sync
+    theme --> themeui["theme-ui.js"]
 ```
