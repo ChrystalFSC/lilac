@@ -7,7 +7,7 @@ Record your periods, see when the next one is likely, and get guidance that link
 
 English · 简体中文 · Works on phone and desktop · No build step
 
-**[Open the app →](https://lilac-dgb.pages.dev)**
+**[Open the app →](https://mylilac.pages.dev)**
 
 <img src="docs/screenshots/desktop-home.jpg" alt="Lilac home screen: next period estimate, cycle dial on day 14 of about 29, and the How's today check-in" width="900">
 
@@ -176,7 +176,7 @@ Every push to `main` publishes the site automatically.
 
 ```mermaid
 flowchart LR
-    A["Edit files"] --> B["git push"] --> C["GitHub<br/>ChrystalFSC/lilac"] --> D["Cloudflare Pages<br/>publishes public/"] --> E["lilac-dgb.pages.dev"]
+    A["Edit files"] --> B["git push"] --> C["GitHub<br/>ChrystalFSC/lilac"] --> D["Cloudflare Pages<br/>publishes public/"] --> E["mylilac.pages.dev"]
 ```
 
 **One-time setup** in the Cloudflare dashboard:
@@ -209,7 +209,7 @@ Optional. Without it, data stays in the browser you use.
 6. In Lilac: **Sync off → Create an account**. On other devices, sign in with the same username and password.
 7. Then turn **off "Allow new users to sign up"** so nobody else can create accounts in your project.
 
-Usernames become `<username>@users.lilac-dgb.pages.dev` behind the scenes, and no email is ever sent. Data is protected by row level security, so each account can only read its own rows. It isn't encrypted in the database, so anyone with access to your Supabase dashboard can read it.
+Usernames become `<username>@users.lilac-dgb.pages.dev` behind the scenes, and no email is ever sent. This is only an internal sign-in name (`usernameDomain` in `config.js`), not the website address. Don't change it, or existing accounts stop matching. Data is protected by row level security, so each account can only read its own rows. It isn't encrypted in the database, so anyone with access to your Supabase dashboard can read it.
 
 **Forgot the password?** In the Supabase **SQL Editor**:
 
