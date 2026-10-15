@@ -4,7 +4,13 @@
     {
       "name": "lilac",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5178", "--directory", "C:/Period"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5178",
+        "--directory",
+        "C:/Period/public"
+      ],
       "port": 5178
     }
   ]
