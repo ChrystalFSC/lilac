@@ -118,6 +118,8 @@ This is the calendar method. It shows a range because real cycles vary: in a stu
   </tr>
 </table>
 
+<img src="docs/screenshots/phone-appearance.jpg" alt="Appearance picker: five colour themes and Match device, Light or Dark" width="280" align="right">
+
 Pick one from the palette button in the header. Every theme has a light and a dark version, and **Match device** follows your phone or computer's setting. Period days stay rose in every theme, so their meaning never changes.
 
 | Theme | Accent (light) | Accent (dark) |
@@ -129,6 +131,8 @@ Pick one from the palette button in the header. Every theme has a light and a da
 | Ocean | `#2F5FB3` | `#9EC0F5` |
 
 All themes keep body text and buttons at a contrast of 4.5:1 or better. Colours live as CSS variables at the top of [`public/css/styles.css`](public/css/styles.css), one block per theme for light and one for dark.
+
+<br clear="right">
 
 ### What the dial shows
 
