@@ -1,0 +1,4 @@
+# Exported health data backups: never commit these
+lilac-*.json
+deploy/
+.impeccable/hook.cache.json

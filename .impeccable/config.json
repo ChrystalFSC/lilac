@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-15T06:45:06.312Z",
+        "reason": "Claude triage: .bar clips its own fill segments to rounded ends and .aura clips decorative background blobs; neither holds tooltips, menus or popovers"
+      }
+    ]
+  }
+}

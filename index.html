@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F6F0FF">
+  <title>Lilac · Period tracker</title>
+  <meta name="description" content="Record your periods, see when the next one is likely, and get guidance sourced from the NHS.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito:wght@400..800&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body>
+  <!-- Line icons (drawn here so they work offline and inherit text colour) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.2c3.4 4.1 6 7.5 6 10.6a6 6 0 0 1-12 0c0-3.1 2.6-6.5 6-10.6z"/></symbol>
+    <symbol id="i-none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M7 17 17 7"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3c.6 4.3 2.7 6.4 7 7-4.3.6-6.4 2.7-7 7-.6-4.3-2.7-6.4-7-7 4.3-.6 6.4-2.7 7-7z"/><path d="M19 15.5c.2 1.4.9 2.1 2.3 2.3-1.4.2-2.1.9-2.3 2.3-.2-1.4-.9-2.1-2.3-2.3 1.4-.2 2.1-.9 2.3-2.3z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M12 10.5v3"/><path d="M12 16.2v.1"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14z"/><path d="M5 19 13 11"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4.5h-4.5"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></symbol>
+  </svg>
+
+  <div class="aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
+  <header class="top">
+    <div class="wordmark">
+      <svg class="wordmark-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkle"/></svg>
+      <span class="wordmark-name">Lilac</span>
+      <span class="wordmark-note" id="storage-note">Kept on this device only</span>
+    </div>
+    <div class="top-actions">
+      <button class="lang-btn" id="lang-toggle" type="button" data-i18n="lang.switch" data-i18n-aria="lang.switchLabel">中文</button>
+      <button class="sync-chip" id="sync-chip" type="button" data-state="unconfigured">Sync off</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="status-heading">
+      <div class="hero-copy">
+        <p class="greeting" id="greeting"></p>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+
+      <div class="dial-wrap">
+        <svg class="dial" id="dial" viewBox="0 0 320 320" role="img" aria-labelledby="dial-label"></svg>
+        <p class="visually-hidden" id="dial-label"></p>
+      </div>
+
+      <div class="card checkin" aria-labelledby="checkin-title">
+        <div class="checkin-head">
+          <h2 id="checkin-title" data-i18n="checkin.title">How's today?</h2>
+          <p class="checkin-sub" data-i18n="checkin.sub">Tap to record today's bleeding.</p>
+        </div>
+        <div class="flow-picker" id="flow-picker" role="group" aria-labelledby="checkin-title">
+          <button type="button" class="flow-btn" data-flow="none"><span class="flow-ic"><svg class="ic"><use href="#i-none"/></svg></span><span data-i18n="flow.none">None</span></button>
+          <button type="button" class="flow-btn" data-flow="spotting"><span class="flow-ic"><svg class="ic ic-xs"><use href="#i-drop"/></svg></span><span data-i18n="flow.spotting">Spotting</span></button>
+          <button type="button" class="flow-btn" data-flow="light"><span class="flow-ic"><svg class="ic"><use href="#i-drop"/></svg></span><span data-i18n="flow.light">Light</span></button>
+          <button type="button" class="flow-btn" data-flow="medium"><span class="flow-ic"><svg class="ic"><use href="#i-drop"/></svg><svg class="ic"><use href="#i-drop"/></svg></span><span data-i18n="flow.medium">Medium</span></button>
+          <button type="button" class="flow-btn" data-flow="heavy"><span class="flow-ic"><svg class="ic"><use href="#i-drop"/></svg><svg class="ic"><use href="#i-drop"/></svg><svg class="ic"><use href="#i-drop"/></svg></span><span data-i18n="flow.heavy">Heavy</span></button>
+        </div>
+        <button class="soft-btn" id="checkin-more" type="button">
+          <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span data-i18n="checkin.more">Add pain, symptoms and notes</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="stats" id="stats" data-i18n-aria="stats.label" aria-label="Summary"></section>
+
+    <div class="grid">
+      <section class="card calendar-panel" aria-labelledby="cal-heading">
+        <div class="panel-head">
+          <h2 id="cal-heading" class="visually-hidden" data-i18n="cal.heading">Calendar</h2>
+          <button class="icon-btn" id="prev-month" type="button" data-i18n-aria="cal.prev" aria-label="Previous month"><svg class="ic"><use href="#i-chev-l"/></svg></button>
+          <p class="month-label" id="month-label" aria-live="polite"></p>
+          <button class="icon-btn" id="next-month" type="button" data-i18n-aria="cal.next" aria-label="Next month"><svg class="ic"><use href="#i-chev-r"/></svg></button>
+        </div>
+        <div class="weekdays" id="weekdays" aria-hidden="true"></div>
+        <div class="days" id="days" role="grid" aria-labelledby="month-label"></div>
+        <ul class="legend">
+          <li><span class="key key-period"></span><span data-i18n="legend.period">Period</span></li>
+          <li><span class="key key-predicted"></span><span data-i18n="legend.estimated">Estimated</span></li>
+          <li><span class="key key-spotting"></span><span data-i18n="legend.spotting">Spotting</span></li>
+          <li><span class="key key-today"></span><span data-i18n="legend.today">Today</span></li>
+        </ul>
+        <p class="hint" data-i18n="cal.hint">Select a day to record flow, pain and symptoms.</p>
+      </section>
+
+      <section class="card guidance-panel" aria-labelledby="guide-heading">
+        <h2 id="guide-heading" class="panel-title" data-i18n="guide.heading">For you right now</h2>
+        <ul class="guidance" id="guidance"></ul>
+      </section>
+    </div>
+
+    <section class="card history-panel" aria-labelledby="history-heading">
+      <div class="history-head">
+        <h2 id="history-heading" class="panel-title" data-i18n="history.heading">Your cycles</h2>
+        <p class="history-key"><span class="band-swatch"></span><span data-i18n="history.key">Shaded band: 21–35 days, the range the NHS describes as regular</span></p>
+      </div>
+      <ol class="history" id="history"></ol>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="disclaimer" data-i18n="foot.disclaimer">Lilac gives general information from the NHS and published research. It can't diagnose anything, and its estimates must not be used as contraception. If something feels wrong, speak to a doctor.</p>
+    <div class="data-controls">
+      <button class="btn btn-quiet" id="export" type="button" data-i18n="foot.export">Export data</button>
+      <label class="btn btn-quiet" for="import-file" data-i18n="foot.import">Import data</label>
+      <input class="visually-hidden" type="file" id="import-file" accept="application/json">
+      <button class="btn btn-quiet btn-danger" id="wipe" type="button" data-i18n="foot.wipe">Delete all data</button>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="petals" id="petals" aria-hidden="true"></div>
+
+  <dialog class="sheet day-dialog" id="day-dialog" aria-labelledby="day-title">
+    <form method="dialog" id="day-form">
+      <header class="dialog-head">
+        <h2 id="day-title"></h2>
+        <button class="icon-btn" value="cancel" data-i18n-aria="day.close" aria-label="Close" formnovalidate>×</button>
+      </header>
+
+      <fieldset class="choices flow-choices">
+        <legend data-i18n="day.bleeding">Bleeding</legend>
+        <label><input type="radio" name="flow" value="none" checked><span data-i18n="flow.none">None</span></label>
+        <label><input type="radio" name="flow" value="spotting"><span data-i18n="flow.spotting">Spotting</span></label>
+        <label><input type="radio" name="flow" value="light"><span data-i18n="flow.light">Light</span></label>
+        <label><input type="radio" name="flow" value="medium"><span data-i18n="flow.medium">Medium</span></label>
+        <label><input type="radio" name="flow" value="heavy"><span data-i18n="flow.heavy">Heavy</span></label>
+      </fieldset>
+
+      <fieldset class="choices">
+        <legend data-i18n="day.pain">Pain</legend>
+        <label><input type="radio" name="pain" value="none" checked><span data-i18n="pain.none">None</span></label>
+        <label><input type="radio" name="pain" value="mild"><span data-i18n="pain.mild">Mild</span></label>
+        <label><input type="radio" name="pain" value="moderate"><span data-i18n="pain.moderate">Moderate</span></label>
+        <label><input type="radio" name="pain" value="severe"><span data-i18n="pain.severe">Severe</span></label>
+      </fieldset>
+
+      <fieldset class="checks">
+        <legend data-i18n="day.signs">Signs worth noting</legend>
+        <label><input type="checkbox" name="clots"><span data-i18n="sign.clots">Clots larger than about 2.5 cm</span></label>
+        <label><input type="checkbox" name="soaked"><span data-i18n="sign.soaked">Changed pad or tampon every 1–2 hours</span></label>
+        <label><input type="checkbox" name="leaked"><span data-i18n="sign.leaked">Bled through to clothes or bedding</span></label>
+        <label><input type="checkbox" name="painkillersFailed"><span data-i18n="sign.painkillers">Painkillers didn't help the pain</span></label>
+      </fieldset>
+
+      <fieldset class="chips">
+        <legend data-i18n="day.symptoms">Other symptoms</legend>
+        <label><input type="checkbox" name="symptoms" value="headache"><span data-i18n="sym.headache">Headache</span></label>
+        <label><input type="checkbox" name="symptoms" value="bloating"><span data-i18n="sym.bloating">Bloating</span></label>
+        <label><input type="checkbox" name="symptoms" value="breast tenderness"><span data-i18n="sym.breast">Breast tenderness</span></label>
+        <label><input type="checkbox" name="symptoms" value="low mood"><span data-i18n="sym.lowMood">Low mood</span></label>
+        <label><input type="checkbox" name="symptoms" value="irritability"><span data-i18n="sym.irritability">Irritability</span></label>
+        <label><input type="checkbox" name="symptoms" value="tiredness"><span data-i18n="sym.tiredness">Tiredness</span></label>
+        <label><input type="checkbox" name="symptoms" value="spots"><span data-i18n="sym.spots">Spots</span></label>
+      </fieldset>
+
+      <label class="note"><span data-i18n="day.notes">Notes</span>
+        <textarea name="note" rows="2" maxlength="500"></textarea>
+      </label>
+
+      <footer class="dialog-foot">
+        <button class="btn btn-quiet" type="button" id="clear-day" data-i18n="day.clear">Clear this day</button>
+        <button class="btn btn-primary" value="save" id="save-day" data-i18n="day.save">Save day</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="sheet sync-dialog" id="sync-dialog" aria-labelledby="sync-title">
+    <header class="dialog-head">
+      <h2 id="sync-title" data-i18n="sync.title">Sync across devices</h2>
+      <form method="dialog"><button class="icon-btn" data-i18n-aria="day.close" aria-label="Close">×</button></form>
+    </header>
+    <div id="sync-body" class="sync-body"></div>
+  </dialog>
+
+  <script src="js/config.js?v=7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+  <script src="js/i18n.js?v=7"></script>
+  <script src="js/dates.js?v=7"></script>
+  <script src="js/store.js?v=7"></script>
+  <script src="js/cycle.js?v=7"></script>
+  <script src="js/guidance.js?v=7"></script>
+  <script src="js/sync.js?v=7"></script>
+  <script src="js/ui.js?v=7"></script>
+  <script src="js/sync-ui.js?v=7"></script>
+</body>
+</html>
