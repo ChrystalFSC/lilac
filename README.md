@@ -1,6 +1,8 @@
 <div align="center">
 
-# ✦ Lilac
+<img src="public/icons/icon-192.png" alt="Lilac app icon: a lilac-to-rose cycle ring with a pearl, around a rose sparkle" width="96" height="96">
+
+# Lilac
 
 **A gentle, private period tracker.**
 Record your periods, see when the next one is likely, and get guidance that links to its source.
@@ -37,6 +39,7 @@ English · 简体中文 · Works on phone and desktop · No build step
 | **Cycle history** | Each cycle's length against the 21–35 day range the NHS describes as regular. |
 | **Two languages** | English and Simplified Chinese, switchable from the header. |
 | **Five colour themes** | Lilac, Rose, Peach, Mint and Ocean, each in light and dark, from the palette button. Your choice syncs to your other devices. |
+| **Add to home screen** | Has its own app icon and opens full-screen like an app on iPhone and Android. |
 | **Private by default** | Data stays in your browser. Optional sync uses your own Supabase project. |
 
 ## Screenshots
@@ -264,6 +267,8 @@ lilac/
 ├── public/                 ← everything Cloudflare publishes
 │   ├── index.html          page structure and icons
 │   ├── _headers            security headers
+│   ├── manifest.webmanifest  app name and icons for "Add to Home Screen"
+│   ├── icons/              app icon (icon.svg is the source; PNGs are rendered from it)
 │   ├── css/styles.css      theme, layout, dark mode
 │   └── js/
 │       ├── theme.js        colour theme + light/dark, applied before first paint
