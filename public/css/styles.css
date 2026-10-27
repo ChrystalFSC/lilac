@@ -19,6 +19,11 @@
   --shadow: 0 1px 2px rgba(20, 16, 40, 0.04), 0 12px 32px -14px rgba(20, 16, 40, 0.18);
   --shadow-lift: 0 2px 4px rgba(20, 16, 40, 0.05), 0 18px 40px -16px rgba(20, 16, 40, 0.26);
   --grad-period: linear-gradient(135deg, var(--period-a) 0%, var(--period-b) 100%);
+  /* Cycle phases: same in every theme so they always mean the same thing */
+  --ph-menstrual: #D9578A;  --ph-menstrual-soft: #FDE3EE;
+  --ph-follicular: #3E9C7E; --ph-follicular-soft: #DDF3EA;
+  --ph-ovulation: #D98A1E;  --ph-ovulation-soft: #FDEDD3;
+  --ph-luteal: #7C5CC4;     --ph-luteal-soft: #ECE4FB;
   --grad-cycle: linear-gradient(135deg, var(--cycle-a) 0%, var(--cycle-b) 55%, var(--cycle-c) 100%);
 
   /* Lilac theme, light (default) */
@@ -59,6 +64,10 @@
   --on-rose: #1B1326;
   --period-a: #F6A9C6;
   --period-b: #E07AA2;
+  --ph-menstrual: #F08DB2;  --ph-menstrual-soft: #4A2236;
+  --ph-follicular: #6FD0AE; --ph-follicular-soft: #1D3B31;
+  --ph-ovulation: #F2B65A;  --ph-ovulation-soft: #44331A;
+  --ph-luteal: #B9A2EE;     --ph-luteal-soft: #2E2647;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -14px rgba(0, 0, 0, 0.6);
   --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 40px -16px rgba(0, 0, 0, 0.7);
 
@@ -394,6 +403,85 @@ main { max-width: 1140px; margin: 0 auto; padding: 0 var(--gutter); }
 .stat-value { font: 600 1.9rem/1.1 var(--display); }
 .stat-value small { font: 700 0.9rem var(--body); color: var(--plum-muted); margin-left: 4px; }
 .stat-label { font-size: 0.88rem; color: var(--plum-muted); font-weight: 700; }
+
+/* ---------- Cycle phases ---------- */
+.phases { margin-bottom: 24px; display: grid; gap: 16px; }
+.phases-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.phases-head .panel-title { margin-bottom: 0; }
+.phases-sub { font-size: 0.88rem; color: var(--plum-muted); font-weight: 600; }
+
+.phase-strip { position: relative; display: flex; height: 14px; border-radius: 999px; overflow: hidden; gap: 3px; }
+.phase-strip span { min-width: 6px; }
+.seg-menstrual { background: var(--ph-menstrual); }
+.seg-follicular { background: var(--ph-follicular); }
+.seg-ovulation { background: var(--ph-ovulation); }
+.seg-luteal { background: var(--ph-luteal); }
+.phase-strip-wrap { position: relative; padding-top: 26px; }
+.phase-marker {
+  position: absolute; top: 0; transform: translateX(-50%);
+  display: grid; justify-items: center; gap: 2px;
+  font-size: 0.72rem; font-weight: 800; color: var(--plum); white-space: nowrap;
+}
+.phase-marker::after { content: ""; width: 2px; height: 22px; background: var(--plum); border-radius: 2px; }
+
+.phase-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.phase-tab {
+  display: grid; gap: 2px; text-align: left; align-content: start;
+  padding: 12px 14px; border-radius: var(--r-md);
+  border: 1.5px solid transparent; cursor: pointer;
+  color: var(--plum); font: inherit;
+  transition: transform 0.2s var(--ease), border-color 0.2s, box-shadow 0.2s;
+}
+.phase-tab:hover { transform: translateY(-2px); }
+.phase-tab[data-phase="menstrual"] { background: var(--ph-menstrual-soft); }
+.phase-tab[data-phase="follicular"] { background: var(--ph-follicular-soft); }
+.phase-tab[data-phase="ovulation"] { background: var(--ph-ovulation-soft); }
+.phase-tab[data-phase="luteal"] { background: var(--ph-luteal-soft); }
+.phase-tab[aria-selected="true"] { box-shadow: var(--shadow); }
+.phase-tab[aria-selected="true"][data-phase="menstrual"] { border-color: var(--ph-menstrual); }
+.phase-tab[aria-selected="true"][data-phase="follicular"] { border-color: var(--ph-follicular); }
+.phase-tab[aria-selected="true"][data-phase="ovulation"] { border-color: var(--ph-ovulation); }
+.phase-tab[aria-selected="true"][data-phase="luteal"] { border-color: var(--ph-luteal); }
+.phase-tab-name { display: flex; align-items: flex-start; gap: 8px; font-weight: 800; font-size: 0.95rem; line-height: 1.35; }
+.phase-tab-name::before { content: ""; width: 10px; height: 10px; border-radius: 50%; flex: none; margin-top: 0.38em; }
+.phase-tab[data-phase="menstrual"] .phase-tab-name::before { background: var(--ph-menstrual); }
+.phase-tab[data-phase="follicular"] .phase-tab-name::before { background: var(--ph-follicular); }
+.phase-tab[data-phase="ovulation"] .phase-tab-name::before { background: var(--ph-ovulation); }
+.phase-tab[data-phase="luteal"] .phase-tab-name::before { background: var(--ph-luteal); }
+.phase-tab-dates { font-size: 0.82rem; color: var(--plum-muted); font-weight: 600; }
+.nw { white-space: nowrap; }
+.phase-tab-now { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--plum); }
+
+.phase-detail { display: grid; gap: 14px; padding: 18px 20px; border-radius: var(--r-md); background: var(--lilac-soft); }
+.phase-detail-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.phase-detail-head h3 { font-size: 1.25rem; }
+.phase-detail-head span { font-size: 0.9rem; color: var(--plum-muted); font-weight: 600; }
+.phase-blocks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.phase-block h4 { margin: 0 0 4px; font: 800 0.78rem/1.3 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--plum-muted); }
+.phase-block p { font-size: 0.95rem; }
+.phase-caution {
+  padding: 10px 14px; border-radius: var(--r-sm);
+  background: var(--ph-ovulation-soft); border-left: 4px solid var(--ph-ovulation);
+  font-size: 0.92rem; font-weight: 600;
+}
+.phase-note { font-size: 0.88rem; color: var(--plum-muted); }
+.phase-sources { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.8rem; }
+.phase-sources b { color: var(--plum-muted); }
+
+/* Dial: thin outer ring coloured by phase */
+.dial-phase-seg { fill: none; stroke-width: 6; stroke-linecap: round; }
+
+/* Calendar: estimated ovulation */
+.day.is-ovulation::before {
+  content: ""; position: absolute; inset: 4px; border-radius: 50%;
+  border: 2px dotted var(--ph-ovulation); pointer-events: none;
+}
+.key-ovulation { border: 2px dotted var(--ph-ovulation); }
+
+@media (max-width: 760px) {
+  .phase-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phase-blocks { grid-template-columns: 1fr; }
+}
 
 /* ---------- Grid ---------- */
 .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }

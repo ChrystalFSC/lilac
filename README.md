@@ -20,6 +20,7 @@ English · 简体中文 · Works on phone and desktop · No build step
 ## Contents
 - [What it does](#what-it-does)
 - [Screenshots](#screenshots)
+- [Cycle phases](#cycle-phases)
 - [How it works](#how-it-works)
 - [Where the health information comes from](#where-the-health-information-comes-from)
 - [Run it locally](#run-it-locally)
@@ -33,6 +34,7 @@ English · 简体中文 · Works on phone and desktop · No build step
 |---|---|
 | **One-tap check-in** | "How's today?" records today's bleeding in one tap. Pain, symptoms and notes are one more tap away. |
 | **Next period estimate** | A date range built from your own recent cycles, never a single over-confident date. |
+| **Cycle phases** | Menstruation, follicular, ovulation and luteal phases estimated from your own dates, each explained: what's happening, what you may notice, how to look after yourself, with sources. |
 | **Cycle dial** | A ring that fills through the cycle: rose for period days, a soft band where the next period is expected, a pearl for today. |
 | **Guidance with sources** | Tips for where you are in your cycle, plus flags for things the NHS says are worth checking with a doctor. Every card links to its source. |
 | **Calendar reminder** | Adds the next expected period to your phone's calendar, with an alert the day before. |
@@ -62,6 +64,29 @@ English · 简体中文 · Works on phone and desktop · No build step
 <img src="docs/screenshots/desktop-dark.jpg" alt="Home screen in dark mode">
 
 <sub>Screenshots use fictional sample data.</sub>
+
+## Cycle phases
+
+<img src="docs/screenshots/phases.jpg" alt="Your cycle phases card: a coloured strip with a Today marker, four phase tabs with dates, and the Ovulation detail panel">
+
+<img src="docs/screenshots/phases-phone-chinese.jpg" alt="Cycle phases card in Simplified Chinese on a phone" width="300" align="right">
+
+Lilac splits each cycle into four phases and estimates their dates from your own cycle history:
+
+| Phase | How Lilac estimates it | Colour |
+|---|---|---|
+| **Menstruation** | The days you logged bleeding | Rose |
+| **Follicular** | From the end of bleeding until ovulation (it officially starts on day 1, so it overlaps your period) | Green |
+| **Ovulation** | 3 days around 14 days before your next expected period | Amber |
+| **Luteal** | From ovulation until your next period | Violet |
+
+Ovulation is counted back from the next period because the luteal phase is the steadier half of the cycle: in a study of 612,613 cycles it averaged 12.4 days, while the follicular phase averaged 16.9 days and varied much more ([Bull et al., 2019](https://doi.org/10.1038/s41746-019-0152-7)). The NHS puts ovulation at around 10 to 16 days before a period, and the app says so.
+
+Each phase has a short explanation of what's happening in the body, what you may notice and how to look after yourself, linked to its sources. The phases also appear as a thin outer ring on the dial, and estimated ovulation days are dotted in amber on the calendar.
+
+> **The ovulation date is a calendar estimate, not a test.** Sperm can survive up to 7 days, so it must not be used to prevent pregnancy. The app shows this warning with the ovulation details.
+
+<br clear="right">
 
 ## How it works
 
@@ -98,6 +123,7 @@ flowchart TD
     D -- "1–2" --> F["Average them<br/>(window ± 3 days)"]
     D -- "3 or more" --> G["Average the last 6<br/>(window ± their standard deviation, at least 2 days)"]
     E & F & G --> H["Next period ≈ last start + average<br/>shown as a date range"]
+    H --> I["Estimated ovulation ≈ next period − 14 days<br/>(shown as 3 days; the NHS range is 10–16)"]
 ```
 
 This is the calendar method. It shows a range because real cycles vary: in a study of 612,613 cycles only 13% were exactly 28 days long (Bull et al., 2019). It is not a fertility or contraception tool.
@@ -144,8 +170,9 @@ All themes keep body text and buttons at a contrast of 4.5:1 or better. Colours 
 | Lilac → pink ring | Days of the cycle so far |
 | Deep rose segment | This cycle's period days |
 | Soft rose band | Where the next period is expected |
+| Thin outer ring | The four phases: menstruation, follicular, ovulation, luteal |
 | Purple pearl | Today |
-| Centre | Phase (Period · Pre-period · Late · Cycle day) and the day number |
+| Centre | Current phase (Period · Follicular · Ovulation · Luteal, or Late) and the day number |
 
 ### How sync keeps devices in step
 
@@ -195,7 +222,11 @@ All guidance text is in [`public/js/i18n.js`](public/js/i18n.js) and the rules a
 | PMS self-care, symptom diary | [NHS · PMS](https://www.nhs.uk/conditions/pre-menstrual-syndrome/) |
 | Late or missed periods | [NHS · Stopped or missed periods](https://www.nhs.uk/conditions/stopped-or-missed-periods/) |
 | Tampon safety | [NHS · Toxic shock syndrome](https://www.nhs.uk/conditions/toxic-shock-syndrome/) |
-| Real-world cycle variation | [Bull et al., *npj Digital Medicine* 2019](https://doi.org/10.1038/s41746-019-0152-7) |
+| Phases, hormones (FSH, LH, oestrogen, progesterone) | [Cleveland Clinic · Menstrual cycle](https://my.clevelandclinic.org/health/articles/10132-menstrual-cycle) |
+| Ovulation timing, sperm survival | [NHS · Fertility in the menstrual cycle](https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/) |
+| Ovulation pain | [NHS · Ovulation pain](https://www.nhs.uk/conditions/ovulation-pain/) |
+| Discharge around ovulation | [NHS · Vaginal discharge](https://www.nhs.uk/conditions/vaginal-discharge/) |
+| Real-world cycle variation, phase lengths | [Bull et al., *npj Digital Medicine* 2019](https://doi.org/10.1038/s41746-019-0152-7) |
 
 Lilac gives general information. It can't diagnose anything and must not be used as contraception.
 
@@ -277,7 +308,7 @@ lilac/
 │       ├── i18n.js         all text, English + 简体中文
 │       ├── dates.js        date maths and formatting
 │       ├── store.js        browser storage, change timestamps
-│       ├── cycle.js        periods, cycles, next-period estimate
+│       ├── cycle.js        periods, cycles, next-period and phase estimates
 │       ├── guidance.js     guidance rules and sources
 │       ├── sync.js         Supabase sign-in and merging
 │       ├── ui.js           dial, check-in, calendar, history
@@ -285,6 +316,7 @@ lilac/
 ├── supabase/
 │   ├── setup.sql           table and access rules
 │   └── remove-old-encrypted-tables.sql
+├── tools/screenshots.py    re-creates every README image (fictional data)
 └── docs/screenshots/       images for this README
 ```
 

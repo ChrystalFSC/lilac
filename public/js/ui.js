@@ -98,6 +98,21 @@
       if (periodEnd > 0.05) arc(0.05, periodEnd, "period" + animate).setAttribute("stroke", "url(#periodGrad)");
     }
 
+    // Thin outer ring: the four phases of this cycle (estimated)
+    const ph = a.hasData ? a.phases : Lilac.cycle.phaseRanges(Lilac.cycle.DEFAULT_CYCLE, Lilac.cycle.DEFAULT_PERIOD);
+    for (const name of ["menstrual", "follicular", "ovulation", "luteal"]) {
+      const [from, to] = ph[name];
+      if (to < from) continue;
+      const a0 = deg(from - 1) + 1.2, a1 = deg(to) - 1.2;
+      if (a1 <= a0) continue;
+      const RO = 154;
+      const [x0, y0] = pt(RO, a0), [x1, y1] = pt(RO, a1);
+      const seg = svg("path", { d: `M ${x0} ${y0} A ${RO} ${RO} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}`, class: "dial-phase-seg" });
+      seg.style.stroke = `var(--ph-${name})`;
+      if (!a.hasData) seg.style.opacity = "0.45";
+      root.appendChild(seg);
+    }
+
     for (let day = 1; day <= total; day++) {
       const [x, y] = pt(R, deg(day - 0.5));
       root.appendChild(svg("circle", { cx: x, cy: y, r: 1.6, class: "dial-dot" }));
@@ -114,7 +129,7 @@
     const big = svg("text", { x: C, y: C + 30, class: "dial-day", "text-anchor": "middle" });
     const sub = svg("text", { x: C, y: C + 58, class: "dial-sub", "text-anchor": "middle" });
     if (a.hasData) {
-      phase.textContent = t(`phase.${a.phase}`);
+      phase.textContent = t(a.cyclePhase === "late" ? "phase.late" : `phase.short.${a.cyclePhase}`);
       big.textContent = a.cycleDay;
       sub.textContent = t("dial.of", { n: cycleLen });
     } else {
@@ -263,6 +278,118 @@
     });
   }
 
+  // ---------- Cycle phases ----------
+  const PHASES = ["menstrual", "follicular", "ovulation", "luteal"];
+  const PHASE_SOURCES = {
+    menstrual: ["periods", "cleveland", "pain"],
+    follicular: ["cleveland", "fertility", "bull"],
+    ovulation: ["fertility", "ovulationPain", "discharge", "cleveland"],
+    luteal: ["cleveland", "fertility", "pms"],
+  };
+  let selectedPhase = null; // null = follow today
+
+  function renderPhases(a) {
+    const ph = a.hasData ? a.phases : Lilac.cycle.phaseRanges(Lilac.cycle.DEFAULT_CYCLE, Lilac.cycle.DEFAULT_PERIOD);
+    const current = a.hasData ? (a.cyclePhase === "late" ? "luteal" : a.cyclePhase) : null;
+    const shown = selectedPhase || current || "menstrual";
+    const dayDate = (d) => D.short(D.addDays(a.lastPeriod.start, d - 1));
+    const range = (from, to) => (a.hasData
+      ? t("phases.dates", { from: dayDate(from), to: dayDate(to) })
+      : t("phases.days", { from, to }));
+
+    $("phases-sub").textContent = t(a.hasData ? "phases.sub" : "phases.typical");
+
+    // Strip: one coloured segment per phase, sized by its days, with a "today" marker
+    const strip = $("phase-strip");
+    strip.replaceChildren();
+    for (const name of PHASES) {
+      const [from, to] = ph[name];
+      const len = Math.max(0, to - from + 1);
+      if (!len) continue;
+      const seg = el("span", { class: `seg-${name}` });
+      seg.style.flex = `${len} 0 0`;
+      strip.appendChild(seg);
+    }
+    let holder = strip.parentElement;
+    if (!holder.classList.contains("phase-strip-wrap")) {
+      holder = el("div", { class: "phase-strip-wrap" });
+      strip.replaceWith(holder);
+      holder.appendChild(strip);
+    }
+    holder.querySelector(".phase-marker")?.remove();
+    if (a.hasData) {
+      const pos = Math.min(a.cycleDay, ph.length) - 0.5;
+      const marker = el("span", { class: "phase-marker" }, t("phases.today"));
+      marker.style.left = `${(pos / ph.length) * 100}%`;
+      holder.appendChild(marker);
+    }
+
+    // Tabs
+    const tabs = $("phase-tabs");
+    tabs.replaceChildren();
+    const select = (name) => { selectedPhase = name; renderPhases(a); $(`phase-tab-${name}`).focus(); };
+    for (const name of PHASES) {
+      const [from, to] = ph[name];
+      const tab = el("button", {
+        type: "button", class: "phase-tab", role: "tab", id: `phase-tab-${name}`,
+        "aria-selected": String(name === shown), "aria-controls": "phase-detail",
+        tabindex: name === shown ? "0" : "-1",
+      });
+      tab.dataset.phase = name;
+      tab.appendChild(el("span", { class: "phase-tab-name" }, t(`phase.${name}`)));
+      // Dates wrap only at the dash, never inside a date (e.g. "10月17日")
+      const dates = el("span", { class: "phase-tab-dates" });
+      if (to < from) dates.textContent = "–";
+      else if (!a.hasData) dates.textContent = range(from, to);
+      else if (from === to) dates.appendChild(el("span", { class: "nw" }, dayDate(from)));
+      else dates.append(el("span", { class: "nw" }, `${dayDate(from)} –`), " ", el("span", { class: "nw" }, dayDate(to)));
+      tab.appendChild(dates);
+      if (name === current) tab.appendChild(el("span", { class: "phase-tab-now" }, t("phases.today")));
+      tab.addEventListener("click", () => select(name));
+      tab.addEventListener("keydown", (ev) => {
+        const i = PHASES.indexOf(name);
+        if (ev.key === "ArrowRight") { ev.preventDefault(); select(PHASES[(i + 1) % 4]); }
+        if (ev.key === "ArrowLeft") { ev.preventDefault(); select(PHASES[(i + 3) % 4]); }
+      });
+      tabs.appendChild(tab);
+    }
+
+    // Detail panel
+    const box = $("phase-detail");
+    box.replaceChildren();
+    box.setAttribute("aria-labelledby", `phase-tab-${shown}`);
+    const [from, to] = ph[shown];
+    const head = el("div", { class: "phase-detail-head" });
+    head.appendChild(el("h3", {}, t(`phase.${shown}`)));
+    if (to >= from) {
+      head.appendChild(el("span", {}, a.hasData
+        ? `${t("phases.days", { from, to })} · ${range(from, to)}`
+        : t("phases.days", { from, to })));
+    }
+    if (shown === current) head.appendChild(el("span", { class: "phase-tab-now" }, t("phases.now")));
+    box.appendChild(head);
+
+    if (a.hasData && a.cyclePhase === "late") box.appendChild(el("p", { class: "phase-note" }, t("phases.late")));
+    else if (to < from) box.appendChild(el("p", { class: "phase-note" }, t("phases.short")));
+
+    const blocks = el("div", { class: "phase-blocks" });
+    for (const part of ["what", "notice", "care"]) {
+      const b = el("div", { class: "phase-block" });
+      b.append(el("h4", {}, t(`phases.${part}`)), el("p", {}, t(`ph.${shown}.${part}`)));
+      blocks.appendChild(b);
+    }
+    box.appendChild(blocks);
+    if (shown === "ovulation") box.appendChild(el("p", { class: "phase-caution" }, t("ph.ovulation.caution")));
+
+    const src = el("p", { class: "phase-sources" });
+    src.appendChild(el("b", {}, t("phases.sources")));
+    for (const key of PHASE_SOURCES[shown]) {
+      const ref = Lilac.guidance.SRC[key];
+      src.appendChild(el("a", { href: ref.url, target: "_blank", rel: "noopener noreferrer", class: "source" }, ref.label));
+    }
+    box.appendChild(src);
+  }
+
   // ---------- Calendar ----------
   function renderCalendar(a) {
     const grid = $("days");
@@ -296,6 +423,7 @@
       else if (periodSet.has(key)) classes.push("is-period", "flow-gap");
       else if (entry?.flow === "spotting") classes.push("is-spotting");
       if (a.predicted?.has(key)) classes.push("is-predicted");
+      if (a.ovulationDays?.has(key)) classes.push("is-ovulation");
 
       const btn = el("button", { type: "button", class: classes.join(" "), role: "gridcell" });
       btn.dataset.key = key;
@@ -305,6 +433,7 @@
       const parts = [D.long(key)];
       if (entry && entry.flow !== "none") parts.push(t("cal.bleeding", { flow: t(`flow.${entry.flow}`) }));
       if (a.predicted?.has(key)) parts.push(t("cal.estimated"));
+      if (a.ovulationDays?.has(key)) parts.push(t("cal.ovulation"));
       if (key === a.today) parts.push(t("cal.today"));
       btn.setAttribute("aria-label", parts.join(", "));
 
@@ -490,6 +619,7 @@
     renderStatus(a);
     renderCheckin();
     renderStats(a);
+    renderPhases(a);
     renderCalendar(a);
     renderGuidance(a);
     renderHistory(a);
@@ -498,7 +628,7 @@
 
   function entrance() {
     if (reduceMotion) return;
-    document.querySelectorAll(".hero-copy, .dial-wrap, .checkin, .grid > .card, .history-panel").forEach((n, i) => {
+    document.querySelectorAll(".hero-copy, .dial-wrap, .checkin, .phases, .grid > .card, .history-panel").forEach((n, i) => {
       n.classList.add("rise");
       n.style.animationDelay = `${i * 90}ms`;
     });

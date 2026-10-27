@@ -15,6 +15,10 @@ Lilac.guidance = (() => {
     missed: { label: "NHS · Stopped or missed periods", url: "https://www.nhs.uk/conditions/stopped-or-missed-periods/" },
     tss: { label: "NHS · Toxic shock syndrome", url: "https://www.nhs.uk/conditions/toxic-shock-syndrome/" },
     bull: { label: "Bull et al., npj Digital Medicine 2019", url: "https://doi.org/10.1038/s41746-019-0152-7" },
+    fertility: { label: "NHS · Fertility in the menstrual cycle", url: "https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/" },
+    cleveland: { label: "Cleveland Clinic · Menstrual cycle", url: "https://my.clevelandclinic.org/health/articles/10132-menstrual-cycle" },
+    ovulationPain: { label: "NHS · Ovulation pain", url: "https://www.nhs.uk/conditions/ovulation-pain/" },
+    discharge: { label: "NHS · Vaginal discharge", url: "https://www.nhs.uk/conditions/vaginal-discharge/" },
   };
 
   function recentDays(days, todayKey, n) {

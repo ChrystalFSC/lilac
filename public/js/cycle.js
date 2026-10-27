@@ -98,8 +98,57 @@ Lilac.cycle = (() => {
       }
       start = D.addDays(start, cycleLen);
     }
+
+    // ---- Cycle phases (estimates) ----
+    // Ovulation happens "around 10 to 16 days before the next period" (NHS, Fertility in the
+    // menstrual cycle), and the luteal phase varies much less than the follicular phase
+    // (Bull et al. 2019: 12.4 ± 2.4 vs 16.9 ± 5.3 days). So ovulation is counted back
+    // 14 days from the next expected period and shown as a 3-day estimate.
+    const menLen = result.inPeriod ? Math.max(last.length, periodLen) : last.length;
+    result.phases = phaseRanges(cycleLen, menLen);
+    result.ovulationDate = D.addDays(last.start, result.phases.ovulationDay - 1);
+    if (result.phase === "late") result.cyclePhase = "late";
+    else result.cyclePhase = phaseOfDay(result.phases, result.cycleDay);
+
+    // Estimated ovulation days for this cycle and the next two (calendar marks). None while late.
+    result.ovulationDays = new Set();
+    if (result.phase !== "late") {
+      let s = result.nextStart;
+      for (let n = 0; n < 3; n++) {
+        const o = D.addDays(s, -OVULATION_BEFORE);
+        for (let i = -1; i <= 1; i++) {
+          const k = D.addDays(o, i);
+          if (k > last.end) result.ovulationDays.add(k);
+        }
+        s = D.addDays(s, cycleLen);
+      }
+    }
     return result;
   }
 
-  return { analyze, PERIOD_FLOWS };
+  // Phase day ranges (1-based cycle days, inclusive) for a cycle of `len` days with `men` bleeding days.
+  // Follicular technically starts on day 1 and overlaps the period; here it covers the days after bleeding.
+  const OVULATION_BEFORE = 14;
+  function phaseRanges(len, men) {
+    const ovulationDay = Math.max(2, len - OVULATION_BEFORE + 1);
+    const ovStart = Math.min(Math.max(men + 1, ovulationDay - 1), len);
+    const ovEnd = Math.min(Math.max(ovStart, ovulationDay + 1), len);
+    return {
+      length: len,
+      ovulationDay,
+      menstrual: [1, Math.min(men, len)],
+      follicular: [men + 1, ovStart - 1],   // may be empty in short cycles
+      ovulation: [ovStart, ovEnd],
+      luteal: [ovEnd + 1, len],
+    };
+  }
+
+  function phaseOfDay(ph, day) {
+    if (day <= ph.menstrual[1]) return "menstrual";
+    if (day < ph.ovulation[0]) return "follicular";
+    if (day <= ph.ovulation[1]) return "ovulation";
+    return "luteal";
+  }
+
+  return { analyze, phaseRanges, phaseOfDay, PERIOD_FLOWS, DEFAULT_CYCLE, DEFAULT_PERIOD };
 })();
